@@ -3,11 +3,11 @@ immorent:
   outputs:
     dev:
       type: bigquery
-      method: service-account-json  # On utilise le robot, pas OAuth
-      project: cours-dbt-479309     # Ton ID projet (Vérifie que c'est le bon)
-      dataset: dbt_geoffrey_airbnb  # Ton dataset
+      method: service-account
+      project: cours-dbt-479309
+      dataset: dbt_geoffrey_airbnb
       threads: 4
       location: US
       priority: interactive
-      # C'est ici que la magie opère : on récupère la clé depuis une variable d'environnement
-      keyfile_json: "{{ env_var('DBT_GOOGLE_BIGQUERY_KEYFILE_JSON') }}"
+      # Changement ici : On utilise 'keyfile' (chemin) au lieu de 'keyfile_json'
+      keyfile: ./gh_keyfile.json

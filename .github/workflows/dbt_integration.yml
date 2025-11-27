@@ -1,45 +1,41 @@
 name: dbt CI/CD Pipeline
 
-# 1. QUAND lancer le robot ?
 on:
   push:
     branches:
       - main
 
-# 2. QUE doit faire le robot ?
 jobs:
   test_and_run:
     name: Run dbt build
-    runs-on: ubuntu-latest # Le robot utilise un Linux
+    runs-on: ubuntu-latest
 
-    # On injecte les secrets dans l'environnement du robot
     env:
+      # On rend le secret disponible comme variable d'environnement
       DBT_GOOGLE_BIGQUERY_KEYFILE_JSON: ${{ secrets.D_GOOGLE_BIGQUERY_KEYFILE_JSON }}
 
     steps:
-      # A. Récupérer ton code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # B. Installer Python
+      # CORRECTION 1 : On passe à Python 3.10 pour éviter les bugs de version
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
-      # C. Installer dbt
+      # CORRECTION 2 : L'étape Magique. On crée le fichier physique.
+      - name: Create Credentials File
+        run: echo "$DBT_GOOGLE_BIGQUERY_KEYFILE_JSON" > gh_keyfile.json
+
       - name: Install dbt
         run: pip install dbt-bigquery
 
-      # D. Installer les dépendances (si tu en avais)
       - name: Install dbt packages
         run: dbt deps
 
-      # E. Lancer le Seed (charger les CSV)
-      # On précise --profiles-dir . pour dire "Regarde le fichier ci_profiles.yml ici, pas ailleurs"
       - name: Run Seeds
         run: dbt seed --profiles-dir . --profile immorent
 
-      # F. Lancer le Run + Test (dbt build fait les deux)
       - name: Run & Test Models
         run: dbt build --profiles-dir . --profile immorent
