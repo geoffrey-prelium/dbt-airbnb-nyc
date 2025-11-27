@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  # --- STAGING ---
+  - name: stg_listings
+    description: "Vue nettoyée des annonces Airbnb NYC."
+    columns:
+      - name: id_logement
+        description: "Clé unique de l'annonce."
+        tests:
+          - unique
+          - not_null
+
+      - name: type_logement
+        tests:
+          - accepted_values:
+              values: ['Private room', 'Entire home/apt', 'Shared room', 'Hotel room']
+              # Si un nouveau type bizarre apparaît, on veut le savoir.
+
+      - name: prix_nuit
+        tests:
+          - not_null
+
+  # --- MARTS ---
+  - name: mart_analyse_quartiers
+    description: "KPIs agrégés par arrondissement (Borough)."
+    columns:
+      - name: quartier_macro
+        description: "Nom de l'arrondissement (ex: Manhattan)."
+        tests:
+          - unique # Un quartier ne doit apparaître qu'une seule fois dans le tableau final
+          - not_null
